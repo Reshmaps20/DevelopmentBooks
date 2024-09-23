@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import com.bnpp.katas.developmentbooks.model.BookRequest;
+import com.bnpp.katas.developmentbooks.model.BookResponse;
 
 class CalculateBookPriceServiceTest {
 
@@ -33,9 +34,9 @@ class CalculateBookPriceServiceTest {
 		BookRequest bookReq = new BookRequest(ONE, ONE);
 		listOfBooks.add(bookReq);
 
-		double price = calculateBookPriceService.calculatePrice(listOfBooks);
+		BookResponse price = calculateBookPriceService.calculatePrice(listOfBooks);
 
-		assertEquals(BOOK_PRICE, price);
+		assertEquals(BOOK_PRICE, price.getFinalPrice());
 	}
 
 	@Test
@@ -46,9 +47,9 @@ class CalculateBookPriceServiceTest {
 		listOfBooks.add(firstBook);
 		listOfBooks.add(secondBook);
 
-		double price = calculateBookPriceService.calculatePrice(listOfBooks);
+		BookResponse price = calculateBookPriceService.calculatePrice(listOfBooks);
 
-		assertEquals(PRICE_OF_TWO_DISTINCT_BOOKS, price);
+		assertEquals(PRICE_OF_TWO_DISTINCT_BOOKS, price.getFinalPrice());
 	}
 
 	@Test
@@ -61,9 +62,9 @@ class CalculateBookPriceServiceTest {
 		listOfBooks.add(secondBook);
 		listOfBooks.add(thirdBook);
 
-		double price = calculateBookPriceService.calculatePrice(listOfBooks);
+		BookResponse price = calculateBookPriceService.calculatePrice(listOfBooks);
 
-		assertEquals(135.0, price);
+		assertEquals(135.0, price.getFinalPrice());
 	}
 
 	@Test
@@ -76,9 +77,9 @@ class CalculateBookPriceServiceTest {
 		listOfBooks.add(secondBook);
 		listOfBooks.add(thirdBook);
 
-		double price = calculateBookPriceService.calculatePrice(listOfBooks);
+		BookResponse price = calculateBookPriceService.calculatePrice(listOfBooks);
 
-		assertEquals(230.0, price);
+		assertEquals(230.0, price.getFinalPrice());
 	}
 
 	@Test
@@ -93,9 +94,9 @@ class CalculateBookPriceServiceTest {
 		listOfBooks.add(thirdBook);
 		listOfBooks.add(forthBook);
 
-		double price = calculateBookPriceService.calculatePrice(listOfBooks);
+		BookResponse price = calculateBookPriceService.calculatePrice(listOfBooks);
 
-		assertEquals(160.0, price);
+		assertEquals(160.0, price.getFinalPrice());
 	}
 
 	@Test
@@ -112,15 +113,15 @@ class CalculateBookPriceServiceTest {
 		listOfBooks.add(forthBook);
 		listOfBooks.add(fifthBook);
 
-		double price = calculateBookPriceService.calculatePrice(listOfBooks);
+		BookResponse price = calculateBookPriceService.calculatePrice(listOfBooks);
 
-		assertEquals(187.5, price);
+		assertEquals(187.5, price.getFinalPrice());
 	}
-	
+
 	@Test
 	@DisplayName("Calculate price of multiple copies of all five books")
 	public void calculatePriceForMultipleCopiesOfAllTheFiveBooks_ReturnsMinimumTotalPrice() {
-		
+
 		BookRequest firstBook = new BookRequest(ONE, TWO);
 		BookRequest secondBook = new BookRequest(TWO, TWO);
 		BookRequest thirdBook = new BookRequest(THREE, TWO);
@@ -131,8 +132,9 @@ class CalculateBookPriceServiceTest {
 		listOfBooks.add(thirdBook);
 		listOfBooks.add(forthBook);
 		listOfBooks.add(fifthBook);
-		
-		double price = calculateBookPriceService.calculatePrice(listOfBooks);
-		assertEquals(320.0, price); 
+
+		BookResponse price = calculateBookPriceService.calculatePrice(listOfBooks);
+
+		assertEquals(320.0, price.getFinalPrice());
 	}
 }

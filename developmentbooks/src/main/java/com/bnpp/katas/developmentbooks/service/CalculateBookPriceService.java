@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import com.bnpp.katas.developmentbooks.model.BookGroup;
 import com.bnpp.katas.developmentbooks.model.BookRequest;
+import com.bnpp.katas.developmentbooks.model.BookResponse;
 import com.bnpp.katas.developmentbooks.store.BooksEnum;
 import com.bnpp.katas.developmentbooks.store.DiscountEnum;
 
@@ -27,7 +28,7 @@ public class CalculateBookPriceService {
 		this.bookCounts = new LinkedHashMap<>();
 	}
 
-	public double calculatePrice(List<BookRequest> bookRequest) {
+	public BookResponse calculatePrice(List<BookRequest> bookRequest) {
 
 		addBook(bookRequest);
 
@@ -41,8 +42,18 @@ public class CalculateBookPriceService {
 		bookCounts.clear();
 
 		Optional<Double> minPrice = totalPrices.keySet().stream().reduce(Double::min);
+		List<BookGroup> associatedBookGroups = totalPrices.get(minPrice.get());
+		BookResponse response = new BookResponse();
 
-		return minPrice.get();
+		double actualPrice = associatedBookGroups.stream().mapToDouble(BookGroup::getActualPrice).sum();
+		double totalDiscount = associatedBookGroups.stream().mapToDouble(BookGroup::getDiscount).sum();
+
+		response.setListOfBookGroups(associatedBookGroups);
+		response.setActualPrice(actualPrice);
+		response.setTotalDiscount(totalDiscount);
+		response.setFinalPrice(minPrice.get());
+		
+		return response;
 	}
 
 	private List<Integer> getApplicableDiscounts(int numberOfBooks) {
