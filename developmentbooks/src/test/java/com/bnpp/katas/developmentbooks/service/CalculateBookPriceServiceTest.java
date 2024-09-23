@@ -5,38 +5,48 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.bnpp.katas.developmentbooks.model.BookRequest;
 
 class CalculateBookPriceServiceTest {
 
+	private CalculateBookPriceService calculateBookPriceService;
+	List<BookRequest> listOfBooks;
+	private static final int ONE = 1;
+	private static final int TWO = 2;
+	private static final double BOOK_PRICE = 50.00;
+	private static final double PRICE_OF_TWO_DISTINCT_BOOKS = 95.00;
+
+	@BeforeEach
+	public void setup() {
+		calculateBookPriceService = new CalculateBookPriceService();
+		listOfBooks = new ArrayList<BookRequest>();
+	}
+
 	@Test
 	public void calculatePriceForASingleBookPurchase_ShouldReturnPriceFifty() {
 
-		CalculateBookPriceService calculateBookPriceService = new CalculateBookPriceService();
-		List<BookRequest> listOfBooks = new ArrayList<BookRequest>();
-		BookRequest bookReq = new BookRequest(1, 1);
+		BookRequest bookReq = new BookRequest(ONE, ONE);
 		listOfBooks.add(bookReq);
 
 		double price = calculateBookPriceService.calculatePrice(listOfBooks);
 
-		assertEquals(50.0, price);
+		assertEquals(BOOK_PRICE, price);
 	}
 
 	@Test
 	public void calculatePriceForTwoDifferentBookPurchase_ShouldApplyFivePercentDiscount() {
-		
-		CalculateBookPriceService calculateBookPriceService = new CalculateBookPriceService();
-		List<BookRequest> listOfBooks = new ArrayList<BookRequest>();
-		BookRequest firstBook = new BookRequest(1, 1);
-		BookRequest secondBook = new BookRequest(2, 1);
+
+		BookRequest firstBook = new BookRequest(ONE, ONE);
+		BookRequest secondBook = new BookRequest(TWO, ONE);
 		listOfBooks.add(firstBook);
 		listOfBooks.add(secondBook);
-		
+
 		double price = calculateBookPriceService.calculatePrice(listOfBooks);
-		
-		assertEquals(95.0, price);
+
+		assertEquals(PRICE_OF_TWO_DISTINCT_BOOKS, price);
 	}
 
 }
