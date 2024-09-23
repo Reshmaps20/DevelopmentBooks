@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -42,14 +43,9 @@ public class CalculateBookPriceService {
 	}
 
 	private List<BooksEnum> selectBooks(Map<BooksEnum, Integer> bookCountsCopy) {
-		List<BooksEnum> selectedBooks = new ArrayList<>();
-		for (BooksEnum bookEnum : BooksEnum.values()) {
-			if (bookCountsCopy.getOrDefault(bookEnum, 0) > 0) {
-				selectedBooks.add(bookEnum);
-				bookCountsCopy.put(bookEnum, bookCountsCopy.get(bookEnum) - 1);
-			}
-		}
-		return selectedBooks;
+		return Arrays.stream(BooksEnum.values()).filter(bookEnum -> bookCountsCopy.getOrDefault(bookEnum, 0) > 0)
+				.peek(bookEnum -> bookCountsCopy.put(bookEnum, bookCountsCopy.get(bookEnum) - 1))
+				.collect(Collectors.toList());
 	}
 
 	private boolean hasBooksLeft(Map<BooksEnum, Integer> bookCountsCopy) {
