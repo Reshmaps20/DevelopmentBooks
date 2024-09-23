@@ -116,4 +116,23 @@ class CalculateBookPriceServiceTest {
 
 		assertEquals(187.5, price);
 	}
+	
+	@Test
+	@DisplayName("Calculate price of multiple copies of all five books")
+	public void calculatePriceForMultipleCopiesOfAllTheFiveBooks_ReturnsMinimumTotalPrice() {
+		
+		BookRequest firstBook = new BookRequest(ONE, TWO);
+		BookRequest secondBook = new BookRequest(TWO, TWO);
+		BookRequest thirdBook = new BookRequest(THREE, TWO);
+		BookRequest forthBook = new BookRequest(FOUR, ONE);
+		BookRequest fifthBook = new BookRequest(FIFTH, ONE);
+		listOfBooks.add(firstBook);
+		listOfBooks.add(secondBook);
+		listOfBooks.add(thirdBook);
+		listOfBooks.add(forthBook);
+		listOfBooks.add(fifthBook);
+		
+		double price = calculateBookPriceService.calculatePrice(listOfBooks);
+		assertEquals(320.0, price); 
+	}
 }
