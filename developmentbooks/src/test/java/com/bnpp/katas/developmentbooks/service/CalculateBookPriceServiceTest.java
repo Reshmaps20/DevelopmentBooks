@@ -17,6 +17,7 @@ class CalculateBookPriceServiceTest {
 	private static final int ONE = 1;
 	private static final int TWO = 2;
 	private static final int THREE = 3;
+	private static final int FOUR = 4;
 	private static final double BOOK_PRICE = 50.00;
 	private static final double PRICE_OF_TWO_DISTINCT_BOOKS = 95.00;
 
@@ -74,5 +75,22 @@ class CalculateBookPriceServiceTest {
 		double price = calculateBookPriceService.calculatePrice(listOfBooks);
 		
 		assertEquals(230.0, price);
+	}
+	
+	@Test
+	public void calculatePriceForFourDifferentBookPurchase_ShouldGive20PercentDiscount() {
+		
+		BookRequest firstBook = new BookRequest(ONE, ONE);
+		BookRequest secondBook = new BookRequest(TWO, ONE);
+		BookRequest thirdBook = new BookRequest(THREE, ONE);
+		BookRequest forthBook = new BookRequest(FOUR, ONE);
+		listOfBooks.add(firstBook);
+		listOfBooks.add(secondBook);
+		listOfBooks.add(thirdBook);
+		listOfBooks.add(forthBook);
+		
+		double price = calculateBookPriceService.calculatePrice(listOfBooks);
+		
+		assertEquals(160.0, price);
 	}
 }

@@ -53,7 +53,9 @@ public class CalculateBookPriceService {
 	}
 
 	private double getDiscount(int bookCount) {
-		if (bookCount == 3) {
+		if (bookCount == 4) {
+			return 0.20;
+		} else if (bookCount == 3) {
 			return 0.10;
 		} else if (bookCount == 2) {
 			return 0.05;
