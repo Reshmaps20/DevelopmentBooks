@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.bnpp.katas.developmentbooks.model.BookRequest;
 import com.bnpp.katas.developmentbooks.store.BooksEnum;
+import com.bnpp.katas.developmentbooks.store.DiscountEnum;
 
 @Service
 public class CalculateBookPriceService {
@@ -62,18 +63,9 @@ public class CalculateBookPriceService {
 		}
 	}
 
-	private double getDiscount(int bookCount) {
-		if (bookCount == 5) {
-			return 0.25;
-		} else if (bookCount == 4) {
-			return 0.20;
-		} else if (bookCount == 3) {
-			return 0.10;
-		} else if (bookCount == 2) {
-			return 0.05;
-		} else {
-			return 0.0;
-		}
+	public static double getDiscount(int uniqueBookCount) {
+		return Arrays.stream(DiscountEnum.values())
+				.filter(discount -> discount.getNumberOfDistinctItems() == uniqueBookCount)
+				.map(DiscountEnum::getDiscountPercentage).findFirst().orElse(0.0);
 	}
-
 }
