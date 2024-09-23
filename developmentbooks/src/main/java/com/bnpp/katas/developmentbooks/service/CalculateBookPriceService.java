@@ -2,6 +2,8 @@ package com.bnpp.katas.developmentbooks.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,12 +30,26 @@ public class CalculateBookPriceService {
 		addBook(bookRequest);
 		List<Double> possiblePrices = new ArrayList<>();
 
-		for (int numberOfBooks = 3; numberOfBooks <= 5; numberOfBooks++) {
-			double totalPriceForBooks = calculateCombinationPrice(numberOfBooks);
+		List<Integer> applicableDiscounts = getApplicableDiscounts(bookCounts.size());
+
+		applicableDiscounts.forEach(numberOfSet -> {
+			double totalPriceForBooks = calculateCombinationPrice(numberOfSet);
 			possiblePrices.add(totalPriceForBooks);
-		}
+		});
+
 		bookCounts.clear();
 		return possiblePrices.stream().min(Double::compare).orElse(0.0);
+	}
+
+	private List<Integer> getApplicableDiscounts(int numberOfBooks) {
+
+		List<Integer> applicableDiscounts = Arrays.stream(DiscountEnum.values())
+				.filter(level -> level.getNumberOfDistinctItems() <= numberOfBooks)
+				.map(DiscountEnum::getNumberOfDistinctItems).sorted(Comparator.reverseOrder())
+				.collect(Collectors.toList());
+
+		return applicableDiscounts.isEmpty() ? Collections.singletonList(1) : applicableDiscounts;
+
 	}
 
 	private double calculateCombinationPrice(int numberOfBooks) {
