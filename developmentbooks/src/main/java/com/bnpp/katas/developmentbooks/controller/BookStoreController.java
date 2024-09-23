@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bnpp.katas.developmentbooks.model.Book;
 import com.bnpp.katas.developmentbooks.model.BookRequest;
+import com.bnpp.katas.developmentbooks.model.BookResponse;
 import com.bnpp.katas.developmentbooks.service.BookStoreService;
 import com.bnpp.katas.developmentbooks.service.CalculateBookPriceService;
 
@@ -31,7 +32,7 @@ public class BookStoreController {
 	}
 	
 	@PostMapping("/calculateprice")
-	public double calculatePrice(@RequestBody List<BookRequest> request) {
+	public BookResponse calculatePrice(@RequestBody List<BookRequest> request) {
 		return calculateBookPriceService.calculatePrice(request);
 	}
 }
