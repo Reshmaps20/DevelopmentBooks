@@ -27,15 +27,10 @@ public class CalculateBookPriceService {
 		addBook(bookRequest);
 
 		Map<BooksEnum, Integer> bookCountsCopy = new HashMap<>(bookCounts);
-		while ((bookCountsCopy.values().stream().anyMatch(count -> count > 0))) {
+		while (hasBooksLeft(bookCountsCopy)) {
 
-			List<BooksEnum> selectedBooks = new ArrayList<>();
-			for (BooksEnum bookEnum : BooksEnum.values()) {
-				if (bookCountsCopy.getOrDefault(bookEnum, 0) > 0) {
-					selectedBooks.add(bookEnum);
-					bookCountsCopy.put(bookEnum, bookCountsCopy.get(bookEnum) - 1);
-				}
-			}
+			List<BooksEnum> selectedBooks = selectBooks(bookCountsCopy);
+
 			if (!selectedBooks.isEmpty()) {
 				double discount = getDiscount(selectedBooks.size());
 				double actualPrice = selectedBooks.size() * 50;
@@ -43,6 +38,21 @@ public class CalculateBookPriceService {
 			}
 		}
 		return totalPrice;
+	}
+
+	private List<BooksEnum> selectBooks(Map<BooksEnum, Integer> bookCountsCopy) {
+		List<BooksEnum> selectedBooks = new ArrayList<>();
+		for (BooksEnum bookEnum : BooksEnum.values()) {
+			if (bookCountsCopy.getOrDefault(bookEnum, 0) > 0) {
+				selectedBooks.add(bookEnum);
+				bookCountsCopy.put(bookEnum, bookCountsCopy.get(bookEnum) - 1);
+			}
+		}
+		return selectedBooks;
+	}
+
+	private boolean hasBooksLeft(Map<BooksEnum, Integer> bookCountsCopy) {
+		return bookCountsCopy.values().stream().anyMatch(count -> count > 0);
 	}
 
 	private void addBook(List<BookRequest> bookRequest) {
