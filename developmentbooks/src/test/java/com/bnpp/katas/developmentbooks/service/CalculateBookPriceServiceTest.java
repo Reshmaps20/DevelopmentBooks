@@ -61,4 +61,18 @@ class CalculateBookPriceServiceTest {
 		
 		assertEquals(135.0, price);
 	}
+	
+	@Test
+	public void CalculatePricForThreeDifferentBookWithMutlipleCopies_RetrunsMinimumTotalPrice() {
+		BookRequest firstBook = new BookRequest(ONE, TWO);
+		BookRequest secondBook = new BookRequest(TWO, TWO);
+		BookRequest thirdBook = new BookRequest(THREE, ONE);
+		listOfBooks.add(firstBook);
+		listOfBooks.add(secondBook);
+		listOfBooks.add(thirdBook);
+		
+		double price = calculateBookPriceService.calculatePrice(listOfBooks);
+		
+		assertEquals(230.0, price);
+	}
 }
