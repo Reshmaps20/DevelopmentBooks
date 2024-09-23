@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -16,7 +17,6 @@ import com.bnpp.katas.developmentbooks.model.BookGroup;
 import com.bnpp.katas.developmentbooks.model.BookRequest;
 import com.bnpp.katas.developmentbooks.store.BooksEnum;
 import com.bnpp.katas.developmentbooks.store.DiscountEnum;
-
 
 @Service
 public class CalculateBookPriceService {
@@ -30,17 +30,19 @@ public class CalculateBookPriceService {
 	public double calculatePrice(List<BookRequest> bookRequest) {
 
 		addBook(bookRequest);
-		List<Double> possiblePrices = new ArrayList<>();
 
 		List<Integer> applicableDiscounts = getApplicableDiscounts(bookCounts.size());
 
-		applicableDiscounts.forEach(numberOfSet -> {
-			double totalPriceForBooks = calculateCombinationPrice(numberOfSet);
-			possiblePrices.add(totalPriceForBooks);
-		});
+		Map<Double, List<BookGroup>> totalPrices = applicableDiscounts.stream().flatMap(numberOfBooks -> {
+			Map<Double, List<BookGroup>> priceGroupMap = calculateCombinationPrice(numberOfBooks);
+			return priceGroupMap.entrySet().stream();
+		}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
 		bookCounts.clear();
-		return possiblePrices.stream().min(Double::compare).orElse(0.0);
+
+		Optional<Double> minPrice = totalPrices.keySet().stream().reduce(Double::min);
+
+		return minPrice.get();
 	}
 
 	private List<Integer> getApplicableDiscounts(int numberOfBooks) {
@@ -53,7 +55,7 @@ public class CalculateBookPriceService {
 		return applicableDiscounts.isEmpty() ? Collections.singletonList(1) : applicableDiscounts;
 	}
 
-	private double calculateCombinationPrice(int numberOfBooks) {
+	private Map<Double, List<BookGroup>> calculateCombinationPrice(int numberOfBooks) {
 
 		Map<BooksEnum, Integer> bookCountsCopy = new HashMap<>(bookCounts);
 		Map<Double, List<BookGroup>> priceToGroupMap = new HashMap<>();
@@ -67,19 +69,20 @@ public class CalculateBookPriceService {
 				double discount = getDiscount(selectedBooks.size());
 				double actualPrice = selectedBooks.size() * 50;
 				totalPrice += actualPrice * (1 - discount);
-				
+
 				BookGroup group = createBookGroup(selectedBooks, discount, actualPrice);
 				bookGroups.add(group);
 			}
 		}
-		return totalPrice;
+		priceToGroupMap.put(totalPrice, bookGroups);
+		return priceToGroupMap;
 	}
 
 	private BookGroup createBookGroup(List<BooksEnum> selectedBooks, double discount, double actualPrice) {
-		return new BookGroup(selectedBooks.stream().map(BooksEnum::getId).collect(Collectors.toList()),
-				discount * 100, actualPrice, actualPrice * discount, selectedBooks.size());
+		return new BookGroup(selectedBooks.stream().map(BooksEnum::getId).collect(Collectors.toList()), discount * 100,
+				actualPrice, actualPrice * discount, selectedBooks.size());
 	}
-	
+
 	private List<BooksEnum> selectBooks(Map<BooksEnum, Integer> bookCountsCopy, int numberOfBooks) {
 
 		List<BooksEnum> selectedBooks = new ArrayList<>();
