@@ -12,9 +12,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.bnpp.katas.developmentbooks.model.BookGroup;
 import com.bnpp.katas.developmentbooks.model.BookRequest;
 import com.bnpp.katas.developmentbooks.store.BooksEnum;
 import com.bnpp.katas.developmentbooks.store.DiscountEnum;
+
 
 @Service
 public class CalculateBookPriceService {
@@ -49,12 +51,13 @@ public class CalculateBookPriceService {
 				.collect(Collectors.toList());
 
 		return applicableDiscounts.isEmpty() ? Collections.singletonList(1) : applicableDiscounts;
-
 	}
 
 	private double calculateCombinationPrice(int numberOfBooks) {
 
 		Map<BooksEnum, Integer> bookCountsCopy = new HashMap<>(bookCounts);
+		Map<Double, List<BookGroup>> priceToGroupMap = new HashMap<>();
+		List<BookGroup> bookGroups = new ArrayList<>();
 		double totalPrice = 0.0;
 
 		while (hasBooksLeft(bookCountsCopy)) {
@@ -64,11 +67,19 @@ public class CalculateBookPriceService {
 				double discount = getDiscount(selectedBooks.size());
 				double actualPrice = selectedBooks.size() * 50;
 				totalPrice += actualPrice * (1 - discount);
+				
+				BookGroup group = createBookGroup(selectedBooks, discount, actualPrice);
+				bookGroups.add(group);
 			}
 		}
 		return totalPrice;
 	}
 
+	private BookGroup createBookGroup(List<BooksEnum> selectedBooks, double discount, double actualPrice) {
+		return new BookGroup(selectedBooks.stream().map(BooksEnum::getId).collect(Collectors.toList()),
+				discount * 100, actualPrice, actualPrice * discount, selectedBooks.size());
+	}
+	
 	private List<BooksEnum> selectBooks(Map<BooksEnum, Integer> bookCountsCopy, int numberOfBooks) {
 
 		List<BooksEnum> selectedBooks = new ArrayList<>();
