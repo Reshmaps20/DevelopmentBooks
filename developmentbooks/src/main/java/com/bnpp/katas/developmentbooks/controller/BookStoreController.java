@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bnpp.katas.developmentbooks.model.Book;
 import com.bnpp.katas.developmentbooks.service.BookStoreService;
-import com.bnpp.katas.developmentbooks.store.BooksEnum;
 
 @RestController
 @RequestMapping("/api/bookstore")
@@ -20,7 +19,7 @@ public class BookStoreController {
 	}
 	
 	@GetMapping("/fetchbooks")
-	public List<BooksEnum> fetchAvailableBooks() {
+	public List<Book> fetchAvailableBooks() {
 		return bookStoreService.fetchBooks();
 	}
 }
