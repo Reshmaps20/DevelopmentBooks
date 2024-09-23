@@ -39,21 +39,38 @@ public class CalculateBookPriceService {
 			return priceGroupMap.entrySet().stream();
 		}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-		bookCounts.clear();
+		return findMinPriceResponse(totalPrices);
+	}
+
+	private BookResponse findMinPriceResponse(Map<Double, List<BookGroup>> totalPrices) {
 
 		Optional<Double> minPrice = totalPrices.keySet().stream().reduce(Double::min);
 		List<BookGroup> associatedBookGroups = totalPrices.get(minPrice.get());
+
+		return createBookResponse(associatedBookGroups, minPrice.get());
+	}
+
+	private BookResponse createBookResponse(List<BookGroup> bookGroups, double finalPrice) {
+
 		BookResponse response = new BookResponse();
 
-		double actualPrice = associatedBookGroups.stream().mapToDouble(BookGroup::getActualPrice).sum();
-		double totalDiscount = associatedBookGroups.stream().mapToDouble(BookGroup::getDiscount).sum();
+		double actualPrice = calculateActualPrice(bookGroups);
+		double totalDiscount = calculateTotalDiscount(bookGroups);
 
-		response.setListOfBookGroups(associatedBookGroups);
+		response.setListOfBookGroups(bookGroups);
 		response.setActualPrice(actualPrice);
 		response.setTotalDiscount(totalDiscount);
-		response.setFinalPrice(minPrice.get());
-		
+		response.setFinalPrice(finalPrice);
+		bookCounts.clear();
 		return response;
+	}
+
+	private double calculateTotalDiscount(List<BookGroup> bookGroups) {
+		return bookGroups.stream().mapToDouble(BookGroup::getDiscount).sum();
+	}
+
+	private double calculateActualPrice(List<BookGroup> bookGroups) {
+		return bookGroups.stream().mapToDouble(BookGroup::getActualPrice).sum();
 	}
 
 	private List<Integer> getApplicableDiscounts(int numberOfBooks) {
@@ -71,22 +88,35 @@ public class CalculateBookPriceService {
 		Map<BooksEnum, Integer> bookCountsCopy = new HashMap<>(bookCounts);
 		Map<Double, List<BookGroup>> priceToGroupMap = new HashMap<>();
 		List<BookGroup> bookGroups = new ArrayList<>();
-		double totalPrice = 0.0;
+		double[] totalPrice = { 0.0 };
 
-		while (hasBooksLeft(bookCountsCopy)) {
+		processBooks(bookCountsCopy, numberOfBooks, bookGroups, totalPrice);
 
-			List<BooksEnum> selectedBooks = selectBooks(bookCountsCopy, numberOfBooks);
-			if (!selectedBooks.isEmpty()) {
-				double discount = getDiscount(selectedBooks.size());
-				double actualPrice = selectedBooks.size() * 50;
-				totalPrice += actualPrice * (1 - discount);
+		priceToGroupMap.put(totalPrice[0], bookGroups);
 
-				BookGroup group = createBookGroup(selectedBooks, discount, actualPrice);
-				bookGroups.add(group);
-			}
-		}
-		priceToGroupMap.put(totalPrice, bookGroups);
 		return priceToGroupMap;
+	}
+
+	private void processBooks(Map<BooksEnum, Integer> bookCountsCopy, int numberOfBooks, List<BookGroup> bookGroups,
+			double[] totalPrice) {
+
+		if (!hasBooksLeft(bookCountsCopy)) {
+			return;
+		}
+
+		List<BooksEnum> selectedBooks = selectBooks(bookCountsCopy, numberOfBooks);
+
+		if (!selectedBooks.isEmpty()) {
+			double discount = getDiscount(selectedBooks.size());
+
+			double actualPrice = selectedBooks.size() * DiscountEnum.PRICE;
+			totalPrice[0] += actualPrice * (1 - discount);
+
+			BookGroup group = createBookGroup(selectedBooks, discount, actualPrice);
+			bookGroups.add(group);
+
+			processBooks(bookCountsCopy, numberOfBooks, bookGroups, totalPrice);
+		}
 	}
 
 	private BookGroup createBookGroup(List<BooksEnum> selectedBooks, double discount, double actualPrice) {

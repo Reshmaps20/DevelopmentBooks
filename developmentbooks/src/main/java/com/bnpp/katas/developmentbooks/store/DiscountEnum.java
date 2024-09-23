@@ -16,5 +16,5 @@ public enum DiscountEnum {
 	private final int numberOfDistinctItems;
     private final double discountPercentage;
     
-    
+	public static final double PRICE = 50.0;
 }
